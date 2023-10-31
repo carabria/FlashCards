@@ -7,7 +7,9 @@ namespace Capstone
     {
         static void Main(string[] args)
         {
-            UserInterface UI = new UserInterface();
+            Console.WriteLine("Please enter in your connection string.");
+            string connectionString = Console.ReadLine();
+            UserInterface UI = new UserInterface(connectionString);
             UI.Run();
 
         }

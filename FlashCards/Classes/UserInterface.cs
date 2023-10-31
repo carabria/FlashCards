@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FlashCards.DAO;
 
 namespace FlashCards.Classes
 {
     public class UserInterface
     {
-        string Conn = "Data Source=P137G001-LCR\SQLEXPRESS;Initial Catalog=FlashCards;Integrated Security=True"
+        private readonly VocabularySqlDao vocabularySqlDao;
+
+        public UserInterface(string connectionString)
+        {
+            vocabularySqlDao = new VocabularySqlDao(connectionString);
+
+        }
         public void Run()
         {
             Console.WriteLine("Welcome to the flash card application. Good luck with your studies!");
@@ -39,7 +46,7 @@ namespace FlashCards.Classes
                     case "3":
                         AddVocabulary();
                         break;
-                    case "4";
+                    case "4":
                         ViewVocabulary();
                         break;
                     case "E":
@@ -52,12 +59,7 @@ namespace FlashCards.Classes
             }
         }
 
-        private void AddVocabulary()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ViewVocabulary()
+        private void BeginApplication()
         {
             throw new NotImplementedException();
         }
@@ -69,11 +71,50 @@ namespace FlashCards.Classes
             {
                 Console.WriteLine();
             }
-            }
+        }
 
-        private void BeginApplication()
+        private void AddVocabulary()
         {
             throw new NotImplementedException();
         }
+
+        private void ViewVocabulary()
+        {
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                Console.WriteLine("Please make an entry");
+                Console.WriteLine("1: View all vocabulary");
+                Console.WriteLine("2: View specific vocabulary");
+                Console.WriteLine("E: Exit");
+                string response = Console.ReadLine().ToUpper();
+                switch (response)
+                {
+                    case "1":
+                        ShowAllVocabulary();
+                        break;
+                    case "2":
+                        ShowSpecificVocabulary();
+                        break;
+                    case "E":
+                        isFinished = true;
+                        break;
+                    default:
+                        Console.WriteLine("Please enter a valid character.");
+                        break;
+                }
+            }
+
+        }
+        private void ShowAllVocabulary()
+        {
+            vocabularySqlDao.ListVocabulary();
+        }
+
+        private void ShowSpecificVocabulary()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
