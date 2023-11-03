@@ -64,7 +64,7 @@ CREATE TABLE cards (
 	('Element', 'Data Structures', 'An individual item in a collection.', 0),
 	('Increment/Decrement', 'Data Structures', 'Operators for increasing or decreasing a value.', 0),
 	('Reserved Words', 'Data Structures', 'Words with predefined meanings in programming.', 0),
-	('FIFO (First-In-First-Out)', 'Data Structures (Cont.)', 'A queuing strategy.', 0),
+	('FIFO (First-In-First-Out)', 'Data Structures', 'A queuing strategy.', 0),
 	('Queue', 'Data Structures', 'A collection that follows FIFO.', 0),
 	('Enqueue', 'Data Structures', 'Adding an item to a queue.', 0),
 	('Dequeue', 'Data Structures', 'Removing an item from a queue.', 0),

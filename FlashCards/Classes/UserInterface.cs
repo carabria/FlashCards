@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FlashCards.DAO;
+using FlashCards.Models;
 
 namespace FlashCards.Classes
 {
     public class UserInterface
     {
         private readonly VocabularySqlDao vocabularySqlDao;
-
         public UserInterface(string connectionString)
         {
             vocabularySqlDao = new VocabularySqlDao(connectionString);
-
         }
+
+
         public void Run()
         {
             Console.WriteLine("Welcome to the flash card application. Good luck with your studies!");
@@ -85,7 +86,7 @@ namespace FlashCards.Classes
             {
                 Console.WriteLine("Please make an entry");
                 Console.WriteLine("1: View all vocabulary");
-                Console.WriteLine("2: View specific vocabulary");
+                Console.WriteLine("2: View vocabulary categories");
                 Console.WriteLine("E: Exit");
                 string response = Console.ReadLine().ToUpper();
                 switch (response)
@@ -94,7 +95,7 @@ namespace FlashCards.Classes
                         ShowAllVocabulary();
                         break;
                     case "2":
-                        ShowSpecificVocabulary();
+                        ShowVocabularyCategories();
                         break;
                     case "E":
                         isFinished = true;
@@ -108,12 +109,22 @@ namespace FlashCards.Classes
         }
         private void ShowAllVocabulary()
         {
-            vocabularySqlDao.ListVocabulary();
+            List<Vocabulary> vocab = vocabularySqlDao.ListVocabulary();
+            foreach (Vocabulary vocabulary in vocab)
+            {
+                Console.WriteLine($"{vocabulary.Id}, {vocabulary.Name}, {vocabulary.Category}, {vocabulary.Description}");
+            }
         }
 
-        private void ShowSpecificVocabulary()
+        private void ShowVocabularyCategories()
         {
-            throw new NotImplementedException();
+            List<string> categories = vocabularySqlDao.ListVocabularyCategories();
+            Console.WriteLine();
+            foreach (string category in categories)
+            {
+                Console.WriteLine(category);
+            }
+            Console.WriteLine();
         }
 
     }
