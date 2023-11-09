@@ -1,12 +1,7 @@
 ﻿using FlashCards.DAO.Interfaces;
 using FlashCards.Exceptions;
 using FlashCards.Models;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlashCards.DAO
 {
@@ -23,25 +18,31 @@ namespace FlashCards.DAO
         public List<Vocabulary> ListVocabulary()
         {
             List<Vocabulary> vocabulary = new List<Vocabulary>();
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                conn.Open();
-
-                using (SqlCommand cmd = new SqlCommand(sqlListVocabulary, conn))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
+                    conn.Open();
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand(sqlListVocabulary, conn))
                     {
 
-                        while (reader.Read())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            Vocabulary vocab = new Vocabulary();
-                            vocab = MapRowToVocabulary(reader);
-                            vocabulary.Add(vocab);
+
+                            while (reader.Read())
+                            {
+                                Vocabulary vocab = new Vocabulary();
+                                vocab = MapRowToVocabulary(reader);
+                                vocabulary.Add(vocab);
+                            }
                         }
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("SQL exception occurred", ex);
             }
             return vocabulary;
         }
@@ -50,23 +51,30 @@ namespace FlashCards.DAO
         {
             List<string> categories = new List<string>();
             string sql = "SELECT category FROM cards GROUP BY category";
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                conn.Open();
-
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
+                    conn.Open();
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
 
-                        while (reader.Read())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            string category = Convert.ToString(reader["category"]);
-                            categories.Add(category);
+
+                            while (reader.Read())
+                            {
+                                string category = Convert.ToString(reader["category"]);
+                                categories.Add(category);
+                            }
                         }
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("SQL exception occurred", ex);
             }
             return categories;
         }
@@ -78,19 +86,25 @@ namespace FlashCards.DAO
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@category", category);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
-
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@category", category);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            Vocabulary vocabulary = MapRowToVocabulary(reader);
-                            vocabularies.Add(vocabulary);
+
+                            while (reader.Read())
+                            {
+                                Vocabulary vocabulary = MapRowToVocabulary(reader);
+                                vocabularies.Add(vocabulary);
+                            }
                         }
                     }
+                }
+                catch (SqlException ex)
+                {
+                    throw new DaoException("SQL exception occurred", ex);
                 }
             }
             return vocabularies;
@@ -98,7 +112,7 @@ namespace FlashCards.DAO
 
         public void AddVocabulary(string name, string category, string description)
         {
-            string sql = "INSERT INTO cards(name, caregory, description) " +
+            string sql = "INSERT INTO cards(name, category, description) " +
                 "OUTPUT INSERTED.id " +
                 "VALUES (@name, @category, @description)";
             try
@@ -107,12 +121,16 @@ namespace FlashCards.DAO
                 {
                     conn.Open();
 
-                    // create user
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@name", name);
                     cmd.Parameters.AddWithValue("@category", category);
                     cmd.Parameters.AddWithValue("@description", description);
-                    cmd.ExecuteScalar();
+
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows == 0)
+                    {
+                        throw new DaoException("No vocabulary was added.");
+                    }
                 }
             }
             catch (SqlException ex)

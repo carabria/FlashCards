@@ -1,19 +1,14 @@
 ﻿using FlashCards.DAO;
 using FlashCards.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlashCards.Classes
 {
     public class ConsoleServices
     {
         private readonly VocabularySqlDao vocabularySqlDao;
-        public ConsoleServices(string connectionString)
+        public ConsoleServices()
         {
-            vocabularySqlDao = new VocabularySqlDao(connectionString);
+            vocabularySqlDao = new VocabularySqlDao("Server =.\\SQLEXPRESS; Database = FlashCards; Trusted_Connection = True");
         }
 
         public void BeginApplication()

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FlashCards.DAO;
-using FlashCards.Models;
+﻿using FlashCards.DAO;
 
 namespace FlashCards.Classes
 {
@@ -12,9 +6,9 @@ namespace FlashCards.Classes
     {
         private readonly VocabularySqlDao vocabularySqlDao;
         private readonly ConsoleServices consoleServices;
-        public UserInterface(string connectionString)
+        public UserInterface()
         {
-            consoleServices = new ConsoleServices(connectionString);
+            consoleServices = new ConsoleServices();
         }
         public void Run()
         {

@@ -1,5 +1,4 @@
 ﻿using FlashCards.Classes;
-using System;
 
 namespace Capstone
 {
@@ -7,11 +6,8 @@ namespace Capstone
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Please enter in your connection string.");
-            string connectionString = Console.ReadLine();
-            UserInterface UI = new UserInterface(connectionString);
-            UI.Run();
-
+            UserInterface ui = new UserInterface();
+            ui.Run();
         }
     }
 }
