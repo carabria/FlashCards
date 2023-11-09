@@ -1,4 +1,5 @@
 ﻿using FlashCards.DAO.Interfaces;
+using FlashCards.Exceptions;
 using FlashCards.Models;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,12 @@ namespace FlashCards.DAO
     {
         private string connectionString = "";
         private string sqlListVocabulary = "SELECT id, name, category, description FROM cards;";
+
         public VocabularySqlDao(string connectionString)
         {
             this.connectionString = connectionString;
         }
+
         public List<Vocabulary> ListVocabulary()
         {
             List<Vocabulary> vocabulary = new List<Vocabulary>();
@@ -66,6 +69,56 @@ namespace FlashCards.DAO
                 }
             }
             return categories;
+        }
+
+        public List<Vocabulary> ListVocabularyByCategory(string category)
+        {
+            List<Vocabulary> vocabularies = new List<Vocabulary>();
+            string sql = "SELECT id, name, category, description FROM cards WHERE category = @category";
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@category", category);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+
+                        while (reader.Read())
+                        {
+                            Vocabulary vocabulary = MapRowToVocabulary(reader);
+                            vocabularies.Add(vocabulary);
+                        }
+                    }
+                }
+            }
+            return vocabularies;
+        }
+
+        public void AddVocabulary(string name, string category, string description)
+        {
+            string sql = "INSERT INTO cards(name, caregory, description) " +
+                "OUTPUT INSERTED.id " +
+                "VALUES (@name, @category, @description)";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    // create user
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@category", category);
+                    cmd.Parameters.AddWithValue("@description", description);
+                    cmd.ExecuteScalar();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("SQL exception occurred", ex);
+            }
         }
 
         private Vocabulary MapRowToVocabulary(SqlDataReader reader)
