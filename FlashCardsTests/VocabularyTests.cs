@@ -15,6 +15,52 @@ namespace FlashCardsTests
             vocabularyDao = new VocabularySqlDao(connectionString);
         }
 
+        // Edit vocabulary test methods
+        [TestMethod]
+        public void AddVocabulary()
+        {
+            string name = "alright";
+            string category = "middle";
+            string description = "this is an alright test";
+            vocabularyDao.AddVocabulary(name, category, description);
+            List<Vocabulary> vocab = vocabularyDao.ListVocabulary();
+            Assert.AreEqual(3, vocab.Count);
+        }
+
+        [TestMethod]
+        public void EditVocabulary()
+        {
+            int id = 1;
+            string name = "alright";
+            string category = "middle";
+            string description = "this is an alright test";
+            vocabularyDao.EditVocabulary(id, name, category, description);
+            Vocabulary result = vocabularyDao.GetVocabularyById(id);
+            Assert.AreEqual("alright", result.Name);
+        }
+
+        [TestMethod]
+        public void EditVocabularyWithDefaults()
+        {
+            int id = 1;
+            string name = "";
+            string category = "";
+            string description = "this is an alright test";
+            vocabularyDao.EditVocabulary(id, name, category, description);
+            Vocabulary result = vocabularyDao.GetVocabularyById(id);
+            Assert.AreEqual("dummy", result.Name);
+        }
+
+        [TestMethod]
+        public void DeleteVocabularyByID()
+        {
+            int id = 1;
+            vocabularyDao.DeleteVocabulary(id);
+            List<Vocabulary> result = vocabularyDao.ListVocabulary();
+            Assert.AreEqual(1, result.Count);
+        }
+
+        // View vocabulary test methods
         [TestMethod]
         public void GetVocabularyByCategory()
         {
@@ -32,6 +78,14 @@ namespace FlashCardsTests
         }
 
         [TestMethod]
+        public void GetVocabularyById()
+        {
+            int id = 1;
+            Vocabulary result = vocabularyDao.GetVocabularyById(id);
+            Assert.AreEqual("dummy", result.Name);
+        }
+
+        [TestMethod]
         public void ListVocabulary()
         {
             List<Vocabulary> vocab = vocabularyDao.ListVocabulary();
@@ -43,17 +97,6 @@ namespace FlashCardsTests
         {
             List<string> categories = vocabularyDao.ListVocabularyCategories();
             Assert.AreEqual(2, categories.Count);
-        }
-
-        [TestMethod]
-        public void AddVocabulary()
-        {
-            string name = "alright";
-            string category = "middle";
-            string description = "this is an alright test";
-            vocabularyDao.AddVocabulary(name, category, description);
-            List<Vocabulary> vocab = vocabularyDao.ListVocabulary();
-            Assert.AreEqual(3, vocab.Count);
         }
     }
 }

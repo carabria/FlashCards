@@ -6,8 +6,8 @@ namespace Capstone
     {
         static void Main(string[] args)
         {
-            UserInterface ui = new UserInterface();
-            ui.Run();
+            Application app = new Application();
+            app.Run();
         }
     }
 }

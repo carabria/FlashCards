@@ -15,6 +15,140 @@ namespace FlashCards.DAO
             this.connectionString = connectionString;
         }
 
+        // Edit methods
+        public void AddVocabulary(string name, string category, string description)
+        {
+            string sql = "INSERT INTO cards(name, category, description) " +
+                "OUTPUT INSERTED.id " +
+                "VALUES (@name, @category, @description)";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@category", category);
+                    cmd.Parameters.AddWithValue("@description", description);
+
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows == 0)
+                    {
+                        throw new DaoException("No vocabulary was added.");
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("A SQL exception occurred", ex);
+            }
+        }
+
+        public void EditVocabulary(int id, string? name, string? category, string? description)
+        {
+            Vocabulary vocab = new Vocabulary();
+            Vocabulary oldVocab = GetVocabularyById(id);
+            string sql = "UPDATE cards SET name = @name, category = @category, description = @description WHERE id = @id";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        if (string.IsNullOrEmpty(name))
+                        {
+                            cmd.Parameters.AddWithValue("@name", oldVocab.Name);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@name", name);
+                        }
+
+                        if (string.IsNullOrEmpty(category))
+                        {
+                            cmd.Parameters.AddWithValue("@category", oldVocab.Category);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@category", category);
+                        }
+
+                        if (string.IsNullOrEmpty(description))
+                        {
+                            cmd.Parameters.AddWithValue("@description", oldVocab.Description);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@description", description);
+                        }
+                        cmd.ExecuteScalar();
+                    }
+                }
+            }
+
+            catch (SqlException ex)
+            {
+                throw new DaoException("A SQL exception occurred", ex);
+            }
+        }
+
+        public void DeleteVocabulary(int id)
+        {
+            string sql = "DELETE FROM cards WHERE id = @id";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("A SQL exception occurred", ex);
+            }
+        }
+
+        // View Methods
+
+        public Vocabulary GetVocabularyById(int id)
+        {
+            Vocabulary vocab = new Vocabulary();
+            string sql = "SELECT id, name, category, description FROM cards WHERE id = @id";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                vocab = MapRowToVocabulary(reader);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new DaoException("A SQL exception occurred", ex);
+            }
+            return vocab;
+        }
+
         public List<Vocabulary> ListVocabulary()
         {
             List<Vocabulary> vocabulary = new List<Vocabulary>();
@@ -42,7 +176,7 @@ namespace FlashCards.DAO
             }
             catch (SqlException ex)
             {
-                throw new DaoException("SQL exception occurred", ex);
+                throw new DaoException("A SQL exception occurred", ex);
             }
             return vocabulary;
         }
@@ -74,7 +208,7 @@ namespace FlashCards.DAO
             }
             catch (SqlException ex)
             {
-                throw new DaoException("SQL exception occurred", ex);
+                throw new DaoException("A SQL exception occurred", ex);
             }
             return categories;
         }
@@ -104,39 +238,10 @@ namespace FlashCards.DAO
                 }
                 catch (SqlException ex)
                 {
-                    throw new DaoException("SQL exception occurred", ex);
+                    throw new DaoException("A SQL exception occurred", ex);
                 }
             }
             return vocabularies;
-        }
-
-        public void AddVocabulary(string name, string category, string description)
-        {
-            string sql = "INSERT INTO cards(name, category, description) " +
-                "OUTPUT INSERTED.id " +
-                "VALUES (@name, @category, @description)";
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@name", name);
-                    cmd.Parameters.AddWithValue("@category", category);
-                    cmd.Parameters.AddWithValue("@description", description);
-
-                    int rows = cmd.ExecuteNonQuery();
-                    if (rows == 0)
-                    {
-                        throw new DaoException("No vocabulary was added.");
-                    }
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw new DaoException("SQL exception occurred", ex);
-            }
         }
 
         private Vocabulary MapRowToVocabulary(SqlDataReader reader)
